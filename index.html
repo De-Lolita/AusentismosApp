@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Ausentismos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .hidden { display: none !important; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <nav class="bg-blue-800 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-calendar-check text-2xl mr-3"></i>
+                    <span class="font-bold text-xl">AusentismosApp</span>
+                </div>
+                <div class="flex items-center space-x-4" id="nav-actions">
+                    <button id="btn-nav-admin" onclick="UI.showAdminLogin()" class="hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas fa-lock mr-1"></i> Administrador
+                    </button>
+                    <button id="btn-nav-employee" onclick="UI.showEmployeeView()" class="hidden hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas fa-user mr-1"></i> Portal Empleado
+                    </button>
+                    <button id="btn-nav-logout" onclick="Auth.logout()" class="hidden bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Salir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="main-content">
+        
+        <section id="view-employee" class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 sm:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Nueva Solicitud de Ausentismo</h2>
+                
+                <form id="form-employee" onsubmit="App.submitRequest(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Datos Personales -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-medium text-gray-700">Datos Personales</h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Documento de Identidad</label>
+                                <input type="number" id="emp-doc" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Nombre Completo</label>
+                                <input type="text" id="emp-name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Cargo</label>
+                                <input type="text" id="emp-position" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Área</label>
+                                <select id="emp-area" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                    <!-- Options populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Punto de Trabajo</label>
+                                <input type="text" id="emp-location" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            </div>
+                        </div>
+
+                        <!-- Datos de la Solicitud -->
+                        <div class="space-y-4">
+                            <h3 class="text-lg font-medium text-gray-700">Detalles del Permiso</h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tipo de Solicitud</label>
+                                <select id="emp-type" required onchange="UI.handleTypeChange()" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                    <!-- Options populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+                                <input type="date" id="emp-date-start" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Hora Inicio</label>
+                                    <input type="time" id="emp-time-start" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Hora Fin</label>
+                                    <input type="time" id="emp-time-end" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                                </div>
+                            </div>
+                            <div id="support-container" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700">Soporte (Enlace Drive)</label>
+                                <input type="url" id="emp-support" placeholder="https://drive.google.com/..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2 text-sm">
+                                <p class="text-xs text-gray-500 mt-1">Este tipo de permiso requiere que adjuntes el enlace a tu incapacidad o soporte.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Motivo / Observaciones</label>
+                                <textarea id="emp-reason" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t flex justify-end">
+                        <button type="button" onclick="UI.showEmployeeHistoryModal()" class="mr-4 text-blue-600 hover:text-blue-800 font-medium">Ver mis solicitudes</button>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition shadow-md">
+                            Enviar Solicitud
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-admin-login" class="max-w-md mx-auto hidden mt-10">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-shield text-4xl text-blue-800 mb-3"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Acceso Administrativo</h2>
+                </div>
+                <form id="form-login" onsubmit="Auth.login(event)" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                        <input type="email" id="login-email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input type="password" id="login-password" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
+                    </div>
+                    <div id="login-error" class="text-red-500 text-sm hidden text-center">Credenciales incorrectas</div>
+                    <button type="submit" class="w-full bg-blue-800 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition shadow">
+                        Ingresar
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="view-admin-dashboard" class="hidden">
+            <!-- ALERTA DE GOOGLE SHEETS -->
+            <div id="sheets-warning" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-yellow-800">Modo de prueba local activado (Google Sheets no conectado)</h3>
+                        <p class="text-sm text-yellow-700 mt-1">
+                            Para guardar los datos en la nube, busca la variable <strong>GOOGLE_SHEETS_URL</strong> al inicio del bloque de código JavaScript (línea ~295) y pega tu URL de Apps Script.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Panel de Control</h2>
+                <div class="space-x-2">
+                    <button onclick="UI.showConfigView()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition font-medium">
+                        <i class="fas fa-cog mr-1"></i> Configuración
+                    </button>
+                    <button onclick="App.exportToCSV()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition font-medium">
+                        <i class="fas fa-file-excel mr-1"></i> Exportar a Sheets
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" id="kpi-container">
+                <!-- Generados por JS -->
+            </div>
+
+            <!-- Tabla de Solicitudes -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-800">Gestión de Solicitudes</h3>
+                    <div class="flex space-x-2">
+                        <select id="filter-status" onchange="App.renderRequests()" class="border-gray-300 rounded-md text-sm border p-1">
+                            <option value="ALL">Todos los estados</option>
+                            <option value="Pendiente">Pendientes</option>
+                            <option value="Aprobada">Aprobadas</option>
+                            <option value="Rechazada">Rechazadas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha / Empleado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permiso</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Filas dinámicas -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-admin-config" class="hidden">
+            <div class="flex items-center mb-6">
+                <button onclick="UI.showAdminDashboard()" class="text-blue-600 hover:text-blue-800 mr-4">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h2 class="text-2xl font-bold text-gray-800">Configuración del Sistema</h2>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="border-b border-gray-200">
+                    <nav class="flex -mb-px" aria-label="Tabs">
+                        <button onclick="UI.switchConfigTab('areas')" id="tab-areas" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm text-blue-600 border-blue-600">Áreas</button>
+                        <button onclick="UI.switchConfigTab('types')" id="tab-types" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">Tipos de Ausentismo</button>
+                        <button onclick="UI.switchConfigTab('admins')" id="tab-admins" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">Administradores</button>
+                    </nav>
+                </div>
+
+                <div class="p-6">
+                    <!-- Tab Áreas -->
+                    <div id="config-areas" class="config-pane">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Gestión de Áreas</h3>
+                            <button onclick="ConfigMod.showAreaModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700"><i class="fas fa-plus"></i> Nueva Área</button>
+                        </div>
+                        <ul id="list-areas" class="divide-y divide-gray-200 border rounded-md"></ul>
+                    </div>
+
+                    <!-- Tab Tipos de Permiso -->
+                    <div id="config-types" class="config-pane hidden">
+                         <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium">Tipos de Ausentismo</h3>
+                            <button onclick="ConfigMod.showTypeModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700"><i class="fas fa-plus"></i> Nuevo Tipo</button>
+                        </div>
+                        <ul id="list-types" class="divide-y divide-gray-200 border rounded-md"></ul>
+                    </div>
+
+                    <!-- Tab Administradores -->
+                    <div id="config-admins" class="config-pane hidden">
+                        <div id="admin-management-content">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium">Usuarios Administradores</h3>
+                                <button onclick="ConfigMod.showAdminModal()" class="bg-blue-600 text-white px-3 py-1.5 rounded text-sm hover:bg-blue-700"><i class="fas fa-user-plus"></i> Nuevo Admin</button>
+                            </div>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                <p class="text-sm text-yellow-700">Por seguridad, las contraseñas se almacenan encriptadas (SHA-256). Nadie puede ver la contraseña original.</p>
+                            </div>
+                            <ul id="list-admins" class="divide-y divide-gray-200 border rounded-md"></ul>
+                        </div>
+                        <div id="admin-restricted-content" class="hidden text-center py-8">
+                            <i class="fas fa-lock text-4xl text-gray-400 mb-3"></i>
+                            <h3 class="text-lg font-medium text-gray-900">Acceso Restringido</h3>
+                            <p class="text-gray-500">Solo el Administrador Principal puede gestionar otros usuarios.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal para Historial de Empleado -->
+    <div id="modal-history" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center pb-3">
+                <h3 class="text-xl font-bold text-gray-900">Mis Solicitudes</h3>
+                <button onclick="UI.closeModals()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="mb-4 flex space-x-2">
+                <input type="number" id="search-doc" placeholder="Digita tu documento..." class="flex-1 rounded-md border-gray-300 border p-2">
+                <button onclick="App.searchEmployeeHistory()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Buscar</button>
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+                <ul id="history-list" class="divide-y divide-gray-200">
+                    <!-- Dinámico -->
+                </ul>
+                <p id="history-empty" class="text-center text-gray-500 py-4 hidden">No se encontraron solicitudes para este documento.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales de Configuración Genéricos -->
+    <div id="modal-config" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 id="modal-config-title" class="text-lg font-bold text-gray-900 mb-4">Título Modal</h3>
+            <div id="modal-config-body" class="space-y-4">
+                <!-- Contenido inyectado por JS -->
+            </div>
+            <div class="mt-5 flex justify-end space-x-3">
+                <button onclick="UI.closeModals()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="btn-config-save" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================================
+        // 🚀 1. CONFIGURACIÓN DE GOOGLE SHEETS 🚀
+        // =============================================================
+        // PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE APPS SCRIPT (Reemplaza "URL_AQUI"):
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyKKRMouyt92SQF8dIarmBo4GvMAITLz4ugWndUEga-0Cxa_v8od6mNN6bizOD__m9k/exec"; 
+        // =============================================================
+
+        // Utilidades de Seguridad
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Generador de IDs únicos
+        const generateID = () => 'REQ-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+        const DB = {
+            init: async () => {
+                try {
+                    console.log("Conectando con Google Sheets...");
+                    if(GOOGLE_SHEETS_URL === "URL_AQUI") {
+                        console.warn("⚠️ AVISO: URL de Google Sheets no configurada. Funcionando en modo offline.");
+                        await DB.fallbackOfflineInit();
+                        return;
+                    }
+
+                    // Descargar todos los datos desde Google Sheets
+                    const response = await fetch(GOOGLE_SHEETS_URL);
+                    const data = await response.json();
+                    
+                    // Si la hoja 'admins' viene vacía (hoja nueva de Sheets), inicializamos la BD
+                    if (!data.admins || data.admins.length === 0) {
+                        console.log("Hoja de cálculo limpia detectada. Inicializando bases y administradores semilla...");
+                        await DB.seedToSheets();
+                    } else {
+                        // Guardamos en la memoria local como caché rápido para que la interfaz vuele
+                        localStorage.setItem('areas', JSON.stringify(data.areas || []));
+                        localStorage.setItem('absence_types', JSON.stringify(data.absence_types || []));
+                        localStorage.setItem('admins', JSON.stringify(data.admins || []));
+                        localStorage.setItem('leave_requests', JSON.stringify(data.leave_requests || []));
+                        console.log("Sincronización exitosa con Sheets.");
+                    }
+                } catch (e) {
+                    console.error("Error conectando a Sheets, usando caché local:", e);
+                    await DB.fallbackOfflineInit();
+                }
+            },
+
+            // Funciones de caché local (para respuesta instantánea en la interfaz)
+            get: (collection) => JSON.parse(localStorage.getItem(collection) || '[]'),
+            set: (collection, data) => localStorage.setItem(collection, JSON.stringify(data)),
+            
+            // Función de inserción a Sheets
+            add: (collection, item) => {
+                // 1. Guardar en memoria local (reacción instantánea UI)
+                const data = DB.get(collection);
+                data.push(item);
+                DB.set(collection, data);
+
+                // 2. Enviar a Google Sheets en segundo plano
+                if(GOOGLE_SHEETS_URL !== "URL_AQUI") {
+                    fetch(GOOGLE_SHEETS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'add', collection: collection, data: item })
+                    }).catch(e => console.error("Error subiendo a Sheets:", e));
+                }
+            },
+            
+            // Función de actualización a Sheets
+            update: (collection, id, updates) => {
+                // 1. Actualizar memoria local
+                const data = DB.get(collection);
+                const idx = data.findIndex(i => i.id === id);
+                if(idx !== -1) {
+                    data[idx] = { ...data[idx], ...updates };
+                    DB.set(collection, data);
+                }
+
+                // 2. Actualizar Google Sheets en segundo plano
+                if(GOOGLE_SHEETS_URL !== "URL_AQUI") {
+                    fetch(GOOGLE_SHEETS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'update', collection: collection, id: id, data: updates })
+                    }).catch(e => console.error("Error actualizando en Sheets:", e));
+                }
+            },
+
+            // Métodos de inicialización interna
+            fallbackOfflineInit: async () => {
+                if (!localStorage.getItem('sys_initialized')) {
+                    const defaultHash = await hashPassword('admin123');
+                    localStorage.setItem('areas', JSON.stringify([{ id: 'a1', name: 'Administración', active: true }, { id: 'a2', name: 'Talento Humano', active: true }]));
+                    localStorage.setItem('absence_types', JSON.stringify([{ id: 't1', name: 'Permiso personal', requireSupport: false, active: true }, { id: 't2', name: 'Cita médica', requireSupport: true, active: true }]));
+                    localStorage.setItem('admins', JSON.stringify([{ id: 'admin_root', name: 'Admin Sistema', email: 'admin@admin.com', hash: defaultHash, role: 'principal', active: true, deletable: false, created: new Date().toISOString() }]));
+                    localStorage.setItem('leave_requests', JSON.stringify([]));
+                    localStorage.setItem('sys_initialized', 'true');
+                }
+            },
+
+            seedToSheets: async () => {
+                const defaultHash = await hashPassword('admin123');
+                const initialAreas = [
+                    { id: 'a1', name: 'Administración', active: true },
+                    { id: 'a2', name: 'Talento Humano', active: true },
+                    { id: 'a3', name: 'Operaciones', active: true },
+                    { id: 'a4', name: 'Comercial', active: true }
+                ];
+                const initialTypes = [
+                    { id: 't1', name: 'Permiso de tiquetera', requireSupport: false, active: true },
+                    { id: 't2', name: 'Permiso personal', requireSupport: false, active: true },
+                    { id: 't3', name: 'Cita médica', requireSupport: true, active: true }
+                ];
+                const initialAdmins = [
+                    { id: 'admin_root', name: 'Admin Sistema', email: 'admin@admin.com', hash: defaultHash, role: 'principal', active: true, deletable: false, created: new Date().toISOString() }
+                ];
+
+                // Cache Local
+                localStorage.setItem('areas', JSON.stringify(initialAreas));
+                localStorage.setItem('absence_types', JSON.stringify(initialTypes));
+                localStorage.setItem('admins', JSON.stringify(initialAdmins));
+                localStorage.setItem('leave_requests', JSON.stringify([]));
+                
+                // Enviar la semilla a Google Sheets
+                initialAreas.forEach(item => DB.add('areas', item));
+                initialTypes.forEach(item => DB.add('absence_types', item));
+                initialAdmins.forEach(item => DB.add('admins', item));
+            }
+        };
+
+        // Estado Global de la App
+        const State = {
+            currentUser: null, // Si no es null, es un admin logueado
+            requests: [],
+            areas: [],
+            types: [],
+            admins: []
+        };
+
+        // -------------------------------------------------------------
+        // CAPA DE AUTENTICACIÓN
+        // -------------------------------------------------------------
+        const Auth = {
+            login: async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value.trim();
+                const pass = document.getElementById('login-password').value;
+                const errorEl = document.getElementById('login-error');
+                
+                const admins = DB.get('admins');
+                const hashedInput = await hashPassword(pass);
+                
+                const user = admins.find(a => a.email.toLowerCase() === email.toLowerCase() && a.active);
+
+                if (user && user.hash === hashedInput) {
+                    State.currentUser = { id: user.id, name: user.name, role: user.role, email: user.email };
+                    errorEl.classList.add('hidden');
+                    UI.showAdminDashboard();
+                    App.loadAdminData();
+                } else {
+                    errorEl.classList.remove('hidden');
+                }
+            },
+            logout: () => {
+                State.currentUser = null;
+                UI.showEmployeeView();
+            }
+        };
+
+        const UI = {
+            hideAll: () => {
+                ['view-employee', 'view-admin-login', 'view-admin-dashboard', 'view-admin-config'].forEach(id => {
+                    document.getElementById(id).classList.add('hidden');
+                });
+            },
+            showEmployeeView: () => {
+                UI.hideAll();
+                document.getElementById('view-employee').classList.remove('hidden');
+                document.getElementById('btn-nav-admin').classList.remove('hidden');
+                document.getElementById('btn-nav-employee').classList.add('hidden');
+                document.getElementById('btn-nav-logout').classList.add('hidden');
+                App.loadEmployeeFormData();
+            },
+            showAdminLogin: () => {
+                UI.hideAll();
+                document.getElementById('view-admin-login').classList.remove('hidden');
+                document.getElementById('btn-nav-employee').classList.remove('hidden');
+                document.getElementById('btn-nav-admin').classList.add('hidden');
+            },
+            showAdminDashboard: () => {
+                if(!State.currentUser) return UI.showAdminLogin();
+                UI.hideAll();
+                document.getElementById('view-admin-dashboard').classList.remove('hidden');
+                document.getElementById('btn-nav-employee').classList.remove('hidden');
+                document.getElementById('btn-nav-admin').classList.add('hidden');
+                document.getElementById('btn-nav-logout').classList.remove('hidden');
+                
+                // Mostrar advertencia si Sheets no está configurado
+                if (GOOGLE_SHEETS_URL === "URL_AQUI") {
+                    document.getElementById('sheets-warning').classList.remove('hidden');
+                } else {
+                    document.getElementById('sheets-warning').classList.add('hidden');
+                }
+
+                App.renderRequests();
+                App.renderKPIs();
+            },
+            showConfigView: () => {
+                if(!State.currentUser) return;
+                UI.hideAll();
+                document.getElementById('view-admin-config').classList.remove('hidden');
+                
+                // Restricciones de seguridad visuales
+                if(State.currentUser.role === 'principal') {
+                    document.getElementById('admin-management-content').classList.remove('hidden');
+                    document.getElementById('admin-restricted-content').classList.add('hidden');
+                } else {
+                    document.getElementById('admin-management-content').classList.add('hidden');
+                    document.getElementById('admin-restricted-content').classList.remove('hidden');
+                }
+
+                ConfigMod.loadData();
+                UI.switchConfigTab('areas');
+            },
+            switchConfigTab: (tabId) => {
+                ['areas', 'types', 'admins'].forEach(id => {
+                    document.getElementById(`config-${id}`).classList.add('hidden');
+                    const tabBtn = document.getElementById(`tab-${id}`);
+                    tabBtn.classList.remove('text-blue-600', 'border-blue-600');
+                    tabBtn.classList.add('text-gray-500', 'border-transparent');
+                });
+                document.getElementById(`config-${tabId}`).classList.remove('hidden');
+                const activeBtn = document.getElementById(`tab-${tabId}`);
+                activeBtn.classList.add('text-blue-600', 'border-blue-600');
+                activeBtn.classList.remove('text-gray-500', 'border-transparent');
+            },
+            handleTypeChange: () => {
+                const typeSelect = document.getElementById('emp-type');
+                const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                const requiresSupport = selectedOption.getAttribute('data-support') === 'true';
+                const supportContainer = document.getElementById('support-container');
+                const supportInput = document.getElementById('emp-support');
+                
+                if (requiresSupport) {
+                    supportContainer.classList.remove('hidden');
+                    supportInput.required = true;
+                } else {
+                    supportContainer.classList.add('hidden');
+                    supportInput.required = false;
+                    supportInput.value = '';
+                }
+            },
+            closeModals: () => {
+                document.getElementById('modal-history').classList.add('hidden');
+                document.getElementById('modal-config').classList.add('hidden');
+            },
+            showEmployeeHistoryModal: () => {
+                document.getElementById('modal-history').classList.remove('hidden');
+                document.getElementById('history-list').innerHTML = '';
+                document.getElementById('history-empty').classList.add('hidden');
+                const currentDoc = document.getElementById('emp-doc').value;
+                if(currentDoc) {
+                    document.getElementById('search-doc').value = currentDoc;
+                    App.searchEmployeeHistory();
+                }
+            },
+            showNotification: (msg) => {
+                // Simple custom alert simulation
+                const el = document.createElement('div');
+                el.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded shadow-lg z-50 transform transition-all duration-300';
+                el.innerText = msg;
+                document.body.appendChild(el);
+                setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 3000);
+            }
+        };
+
+        const ConfigMod = {
+            loadData: () => {
+                State.areas = DB.get('areas');
+                State.types = DB.get('absence_types');
+                State.admins = DB.get('admins');
+                ConfigMod.renderAreas();
+                ConfigMod.renderTypes();
+                ConfigMod.renderAdmins();
+            },
+            
+            // --- AREAS ---
+            renderAreas: () => {
+                const ul = document.getElementById('list-areas');
+                ul.innerHTML = State.areas.map(area => `
+                    <li class="p-4 flex items-center justify-between ${area.active ? 'bg-white' : 'bg-gray-50'}">
+                        <div>
+                            <span class="font-medium ${area.active ? 'text-gray-900' : 'text-gray-400 line-through'}">${area.name}</span>
+                            ${!area.active ? '<span class="ml-2 text-xs bg-red-100 text-red-800 px-2 rounded">Inactiva</span>' : ''}
+                        </div>
+                        <button onclick="ConfigMod.toggleArea('${area.id}')" class="text-sm font-medium ${area.active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">
+                            ${area.active ? 'Desactivar' : 'Activar'}
+                        </button>
+                    </li>
+                `).join('');
+            },
+            showAreaModal: () => {
+                const body = document.getElementById('modal-config-body');
+                document.getElementById('modal-config-title').innerText = "Nueva Área";
+                body.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700">Nombre del Área</label>
+                    <input type="text" id="cfg-area-name" class="mt-1 block w-full rounded border-gray-300 border p-2">
+                `;
+                document.getElementById('btn-config-save').onclick = () => {
+                    const name = document.getElementById('cfg-area-name').value.trim();
+                    if(name) {
+                        DB.add('areas', { id: generateID(), name, active: true });
+                        UI.closeModals();
+                        ConfigMod.loadData();
+                        UI.showNotification("Área guardada");
+                    }
+                };
+                document.getElementById('modal-config').classList.remove('hidden');
+            },
+            toggleArea: (id) => {
+                const area = State.areas.find(a => a.id === id);
+                if(area) {
+                    DB.update('areas', id, { active: !area.active });
+                    ConfigMod.loadData();
+                }
+            },
+
+            // --- TIPOS DE AUSENTISMO ---
+            renderTypes: () => {
+                const ul = document.getElementById('list-types');
+                ul.innerHTML = State.types.map(type => `
+                    <li class="p-4 flex items-center justify-between ${type.active ? 'bg-white' : 'bg-gray-50'}">
+                        <div>
+                            <span class="font-medium ${type.active ? 'text-gray-900' : 'text-gray-400 line-through'}">${type.name}</span>
+                            ${type.requireSupport ? '<span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 rounded"><i class="fas fa-paperclip"></i> Requiere Soporte</span>' : ''}
+                            ${!type.active ? '<span class="ml-2 text-xs bg-red-100 text-red-800 px-2 rounded">Inactivo</span>' : ''}
+                        </div>
+                        <button onclick="ConfigMod.toggleType('${type.id}')" class="text-sm font-medium ${type.active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">
+                            ${type.active ? 'Desactivar' : 'Activar'}
+                        </button>
+                    </li>
+                `).join('');
+            },
+            showTypeModal: () => {
+                const body = document.getElementById('modal-config-body');
+                document.getElementById('modal-config-title').innerText = "Nuevo Tipo de Permiso";
+                body.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" id="cfg-type-name" class="mb-3 mt-1 block w-full rounded border-gray-300 border p-2">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="cfg-type-support" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-sm text-gray-700">Requiere adjuntar soporte (Drive URL)</span>
+                    </label>
+                `;
+                document.getElementById('btn-config-save').onclick = () => {
+                    const name = document.getElementById('cfg-type-name').value.trim();
+                    const reqSupp = document.getElementById('cfg-type-support').checked;
+                    if(name) {
+                        DB.add('absence_types', { id: generateID(), name, requireSupport: reqSupp, active: true });
+                        UI.closeModals();
+                        ConfigMod.loadData();
+                        UI.showNotification("Tipo guardado");
+                    }
+                };
+                document.getElementById('modal-config').classList.remove('hidden');
+            },
+            toggleType: (id) => {
+                const type = State.types.find(t => t.id === id);
+                if(type) {
+                    DB.update('absence_types', id, { active: !type.active });
+                    ConfigMod.loadData();
+                }
+            },
+
+            // --- ADMINISTRADORES ---
+            renderAdmins: () => {
+                if(State.currentUser.role !== 'principal') return;
+                const ul = document.getElementById('list-admins');
+                ul.innerHTML = State.admins.map(admin => `
+                    <li class="p-4 flex items-center justify-between ${admin.active ? 'bg-white' : 'bg-gray-50'}">
+                        <div>
+                            <span class="font-medium ${admin.active ? 'text-gray-900' : 'text-gray-400'}">${admin.name}</span>
+                            <span class="text-sm text-gray-500 ml-2">(${admin.email})</span>
+                            <span class="ml-2 text-xs px-2 rounded ${admin.role === 'principal' ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-800'}">${admin.role}</span>
+                            ${!admin.active ? '<span class="ml-2 text-xs bg-red-100 text-red-800 px-2 rounded">Inactivo</span>' : ''}
+                        </div>
+                        ${admin.deletable !== false && admin.id !== State.currentUser.id ? `
+                            <button onclick="ConfigMod.toggleAdmin('${admin.id}')" class="text-sm font-medium ${admin.active ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'}">
+                                ${admin.active ? 'Desactivar' : 'Activar'}
+                            </button>
+                        ` : '<span class="text-xs text-gray-400 italic">No modificable</span>'}
+                    </li>
+                `).join('');
+            },
+            showAdminModal: () => {
+                const body = document.getElementById('modal-config-body');
+                document.getElementById('modal-config-title').innerText = "Nuevo Administrador";
+                body.innerHTML = `
+                    <input type="text" id="cfg-admin-name" placeholder="Nombre completo" class="mb-3 block w-full rounded border p-2">
+                    <input type="email" id="cfg-admin-email" placeholder="Correo electrónico" class="mb-3 block w-full rounded border p-2">
+                    <input type="password" id="cfg-admin-pass" placeholder="Contraseña segura" class="mb-3 block w-full rounded border p-2">
+                    <select id="cfg-admin-role" class="mb-3 block w-full rounded border p-2">
+                        <option value="admin">Administrador Regular</option>
+                        <option value="principal">Administrador Principal</option>
+                    </select>
+                `;
+                document.getElementById('btn-config-save').onclick = async () => {
+                    const name = document.getElementById('cfg-admin-name').value.trim();
+                    const email = document.getElementById('cfg-admin-email').value.trim();
+                    const pass = document.getElementById('cfg-admin-pass').value;
+                    const role = document.getElementById('cfg-admin-role').value;
+                    
+                    if(name && email && pass.length >= 6) {
+                        const hash = await hashPassword(pass);
+                        DB.add('admins', { 
+                            id: generateID(), name, email, hash, role, active: true, deletable: true, created: new Date().toISOString() 
+                        });
+                        UI.closeModals();
+                        ConfigMod.loadData();
+                        UI.showNotification("Administrador creado de forma segura");
+                    }
+                };
+                document.getElementById('modal-config').classList.remove('hidden');
+            },
+            toggleAdmin: (id) => {
+                const admin = State.admins.find(a => a.id === id);
+                if(admin && admin.deletable !== false && admin.id !== State.currentUser.id) {
+                    DB.update('admins', id, { active: !admin.active });
+                    ConfigMod.loadData();
+                }
+            }
+        };
+
+        const App = {
+            loadEmployeeFormData: () => {
+                // Cargar listas activas desde Configuración
+                const areas = DB.get('areas').filter(a => a.active);
+                const types = DB.get('absence_types').filter(t => t.active);
+                
+                const areaSelect = document.getElementById('emp-area');
+                areaSelect.innerHTML = '<option value="">Seleccione un área...</option>' + 
+                    areas.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+                
+                const typeSelect = document.getElementById('emp-type');
+                typeSelect.innerHTML = '<option value="">Seleccione el tipo...</option>' + 
+                    types.map(t => `<option value="${t.name}" data-support="${t.requireSupport}">${t.name}</option>`).join('');
+            },
+            
+            submitRequest: (e) => {
+                e.preventDefault();
+                
+                // Calcular duración sencilla
+                const dStart = document.getElementById('emp-date-start').value;
+                const hStart = document.getElementById('emp-time-start').value;
+                const hEnd = document.getElementById('emp-time-end').value;
+                
+                let durationStr = "N/A";
+                if(hStart && hEnd) {
+                    const t1 = new Date(`2000-01-01T${hStart}`);
+                    const t2 = new Date(`2000-01-01T${hEnd}`);
+                    const diffMs = t2 - t1;
+                    if(diffMs > 0) {
+                        const hours = Math.floor(diffMs / 3600000);
+                        const mins = Math.floor((diffMs % 3600000) / 60000);
+                        durationStr = `${hours}h ${mins}m`;
+                    }
+                }
+
+                const requestData = {
+                    id: generateID(),
+                    timestamp: new Date().toISOString(),
+                    document: document.getElementById('emp-doc').value,
+                    name: document.getElementById('emp-name').value,
+                    position: document.getElementById('emp-position').value,
+                    area: document.getElementById('emp-area').value,
+                    location: document.getElementById('emp-location').value,
+                    type: document.getElementById('emp-type').value,
+                    dateStart: dStart,
+                    timeStart: hStart,
+                    timeEnd: hEnd,
+                    duration: durationStr,
+                    supportUrl: document.getElementById('emp-support').value,
+                    reason: document.getElementById('emp-reason').value,
+                    status: 'Pendiente',
+                    actionBy: null,
+                    actionDate: null
+                };
+
+                DB.add('leave_requests', requestData);
+                
+                UI.showNotification("¡Solicitud enviada con éxito!");
+                document.getElementById('form-employee').reset();
+                UI.handleTypeChange();
+            },
+
+            loadAdminData: () => {
+                State.requests = DB.get('leave_requests');
+                App.renderRequests();
+                App.renderKPIs();
+            },
+
+            renderRequests: () => {
+                State.requests = DB.get('leave_requests'); // Refrescar siempre
+                const tbody = document.getElementById('requests-table-body');
+                const filter = document.getElementById('filter-status').value;
+                
+                let filtered = State.requests;
+                if(filter !== 'ALL') filtered = filtered.filter(r => r.status === filter);
+                
+                // Ordenar más recientes primero
+                filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                tbody.innerHTML = filtered.map(req => {
+                    let statusColor = req.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
+                                      req.status === 'Aprobada' ? 'bg-green-100 text-green-800' : 
+                                      'bg-red-100 text-red-800';
+                    return `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${req.name}</div>
+                                <div class="text-sm text-gray-500">${new Date(req.timestamp).toLocaleDateString()}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">${req.area}</div>
+                                <div class="text-xs text-gray-500">${req.position}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${req.type}</div>
+                                <div class="text-xs text-gray-500">${req.dateStart} ${req.timeStart ? `(${req.timeStart}-${req.timeEnd})` : ''}</div>
+                                ${req.supportUrl ? `<a href="${req.supportUrl}" target="_blank" class="text-xs text-blue-600 hover:underline mt-1 inline-block"><i class="fas fa-link"></i> Ver Soporte</a>` : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
+                                    ${req.status}
+                                </span>
+                                ${req.actionBy ? `<div class="text-xs text-gray-400 mt-1" title="Por: ${req.actionBy}">Actualizado</div>` : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                ${req.status === 'Pendiente' ? `
+                                    <button onclick="App.changeStatus('${req.id}', 'Aprobada')" class="text-green-600 hover:text-green-900 mr-3"><i class="fas fa-check-circle text-lg"></i></button>
+                                    <button onclick="App.changeStatus('${req.id}', 'Rechazada')" class="text-red-600 hover:text-red-900"><i class="fas fa-times-circle text-lg"></i></button>
+                                ` : '<span class="text-gray-400">Procesada</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                if(filtered.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No hay solicitudes para mostrar.</td></tr>`;
+                }
+            },
+
+            changeStatus: (id, newStatus) => {
+                DB.update('leave_requests', id, {
+                    status: newStatus,
+                    actionBy: State.currentUser.name,
+                    actionDate: new Date().toISOString()
+                });
+                App.renderRequests();
+                App.renderKPIs();
+            },
+
+            renderKPIs: () => {
+                const reqs = DB.get('leave_requests');
+                const kpiContainer = document.getElementById('kpi-container');
+                const total = reqs.length;
+                const pendientes = reqs.filter(r => r.status === 'Pendiente').length;
+                const aprobadas = reqs.filter(r => r.status === 'Aprobada').length;
+                
+                const currentMonth = new Date().getMonth();
+                const delMes = reqs.filter(r => new Date(r.timestamp).getMonth() === currentMonth).length;
+
+                kpiContainer.innerHTML = `
+                    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+                        <div class="text-gray-500 text-sm font-medium">Total Solicitudes</div>
+                        <div class="text-2xl font-bold text-gray-800">${total}</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
+                        <div class="text-gray-500 text-sm font-medium">Pendientes</div>
+                        <div class="text-2xl font-bold text-gray-800">${pendientes}</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+                        <div class="text-gray-500 text-sm font-medium">Aprobadas</div>
+                        <div class="text-2xl font-bold text-gray-800">${aprobadas}</div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-purple-500">
+                        <div class="text-gray-500 text-sm font-medium">Solicitudes este Mes</div>
+                        <div class="text-2xl font-bold text-gray-800">${delMes}</div>
+                    </div>
+                `;
+            },
+
+            searchEmployeeHistory: () => {
+                const doc = document.getElementById('search-doc').value;
+                const allReqs = DB.get('leave_requests');
+                const history = allReqs.filter(r => r.document === doc).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                const ul = document.getElementById('history-list');
+                const empty = document.getElementById('history-empty');
+                
+                if(history.length === 0) {
+                    ul.innerHTML = '';
+                    empty.classList.remove('hidden');
+                } else {
+                    empty.classList.add('hidden');
+                    ul.innerHTML = history.map(req => {
+                        let statusColor = req.status === 'Pendiente' ? 'text-yellow-600' :
+                                      req.status === 'Aprobada' ? 'text-green-600' : 'text-red-600';
+                        return `
+                            <li class="py-3 flex justify-between items-center">
+                                <div>
+                                    <p class="font-medium text-gray-800">${req.type}</p>
+                                    <p class="text-sm text-gray-500">${req.dateStart} ${req.timeStart ? `(${req.duration})` : ''}</p>
+                                </div>
+                                <span class="font-bold ${statusColor}">${req.status}</span>
+                            </li>
+                        `;
+                    }).join('');
+                }
+            },
+
+            exportToCSV: () => {
+                const data = DB.get('leave_requests');
+                if(data.length === 0) return UI.showNotification("No hay datos para exportar");
+                
+                const headers = ["ID", "Fecha_Registro", "Documento", "Nombre", "Cargo", "Area", "Punto_Trabajo", "Tipo", "Fecha_Inicio", "Hora_Inicio", "Hora_Fin", "Duracion", "Motivo", "Soporte", "Estado", "Aprobador", "Fecha_Accion"];
+                const csvRows = [headers.join(',')];
+                
+                data.forEach(row => {
+                    const values = [
+                        row.id,
+                        new Date(row.timestamp).toLocaleString(),
+                        row.document,
+                        `"${row.name}"`,
+                        `"${row.position}"`,
+                        `"${row.area}"`,
+                        `"${row.location}"`,
+                        `"${row.type}"`,
+                        row.dateStart,
+                        row.timeStart || '',
+                        row.timeEnd || '',
+                        row.duration,
+                        `"${(row.reason || '').replace(/"/g, '""')}"`,
+                        row.supportUrl || '',
+                        row.status,
+                        `"${row.actionBy || ''}"`,
+                        row.actionDate ? new Date(row.actionDate).toLocaleString() : ''
+                    ];
+                    csvRows.push(values.join(','));
+                });
+                
+                const csvString = csvRows.join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ausentismos_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+            }
+        };
+
+        window.onload = async () => {
+            await DB.init();
+            UI.showEmployeeView(); // Vista por defecto
+        };
+
+    </script>
+</body>
+</html>
