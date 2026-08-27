@@ -900,7 +900,7 @@
             searchEmployeeHistory: () => {
                 const doc = document.getElementById('search-doc').value;
                 const allReqs = DB.get('leave_requests');
-                const history = allReqs.filter(r => r.document === doc).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                const history = allReqs.filter(r => String(r.document).trim() === String(doc).trim()).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
                 const ul = document.getElementById('history-list');
                 const empty = document.getElementById('history-empty');
