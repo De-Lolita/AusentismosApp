@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Ausentismos</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    
+    <!-- Librería de estilos (Tailwind) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Iconos y Fuentes -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .hidden { display: none !important; }
@@ -14,7 +19,6 @@
     </style>
 </head>
 <body class="text-gray-800">
-
     <nav class="bg-blue-800 text-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
@@ -36,13 +40,10 @@
             </div>
         </div>
     </nav>
-
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="main-content">
-        
         <section id="view-employee" class="max-w-3xl mx-auto">
             <div class="bg-white rounded-xl shadow-md p-6 sm:p-8">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">Nueva Solicitud de Ausentismo</h2>
-                
                 <form id="form-employee" onsubmit="App.submitRequest(event)" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Datos Personales -->
@@ -71,7 +72,6 @@
                                 <input type="text" id="emp-location" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-2">
                             </div>
                         </div>
-
                         <!-- Datos de la Solicitud -->
                         <div class="space-y-4">
                             <h3 class="text-lg font-medium text-gray-700">Detalles del Permiso</h3>
@@ -106,7 +106,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="pt-4 border-t flex justify-end">
                         <button type="button" onclick="UI.showEmployeeHistoryModal()" class="mr-4 text-blue-600 hover:text-blue-800 font-medium">Ver mis solicitudes</button>
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition shadow-md">
@@ -116,7 +115,6 @@
                 </form>
             </div>
         </section>
-
         <section id="view-admin-login" class="max-w-md mx-auto hidden mt-10">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <div class="text-center mb-8">
@@ -139,7 +137,6 @@
                 </form>
             </div>
         </section>
-
         <section id="view-admin-dashboard" class="hidden">
             <!-- ALERTA DE GOOGLE SHEETS -->
             <div id="sheets-warning" class="hidden mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md shadow-sm">
@@ -150,12 +147,11 @@
                     <div class="ml-3">
                         <h3 class="text-sm font-medium text-yellow-800">Modo de prueba local activado (Google Sheets no conectado)</h3>
                         <p class="text-sm text-yellow-700 mt-1">
-                            Para guardar los datos en la nube, busca la variable <strong>GOOGLE_SHEETS_URL</strong> al inicio del bloque de código JavaScript (línea ~295) y pega tu URL de Apps Script.
+                            Para guardar los datos en la nube, busca la variable <strong>GOOGLE_SHEETS_URL</strong> al inicio del bloque de código JavaScript y pega tu URL de Apps Script.
                         </p>
                     </div>
                 </div>
             </div>
-
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Panel de Control</h2>
                 <div class="space-x-2">
@@ -167,12 +163,10 @@
                     </button>
                 </div>
             </div>
-
             <!-- KPIs -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8" id="kpi-container">
                 <!-- Generados por JS -->
             </div>
-
             <!-- Tabla de Solicitudes -->
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
@@ -204,7 +198,6 @@
                 </div>
             </div>
         </section>
-
         <section id="view-admin-config" class="hidden">
             <div class="flex items-center mb-6">
                 <button onclick="UI.showAdminDashboard()" class="text-blue-600 hover:text-blue-800 mr-4">
@@ -212,7 +205,6 @@
                 </button>
                 <h2 class="text-2xl font-bold text-gray-800">Configuración del Sistema</h2>
             </div>
-
             <div class="bg-white rounded-xl shadow-md overflow-hidden">
                 <div class="border-b border-gray-200">
                     <nav class="flex -mb-px" aria-label="Tabs">
@@ -221,7 +213,6 @@
                         <button onclick="UI.switchConfigTab('admins')" id="tab-admins" class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">Administradores</button>
                     </nav>
                 </div>
-
                 <div class="p-6">
                     <!-- Tab Áreas -->
                     <div id="config-areas" class="config-pane">
@@ -231,7 +222,6 @@
                         </div>
                         <ul id="list-areas" class="divide-y divide-gray-200 border rounded-md"></ul>
                     </div>
-
                     <!-- Tab Tipos de Permiso -->
                     <div id="config-types" class="config-pane hidden">
                          <div class="flex justify-between items-center mb-4">
@@ -240,7 +230,6 @@
                         </div>
                         <ul id="list-types" class="divide-y divide-gray-200 border rounded-md"></ul>
                     </div>
-
                     <!-- Tab Administradores -->
                     <div id="config-admins" class="config-pane hidden">
                         <div id="admin-management-content">
@@ -262,9 +251,7 @@
                 </div>
             </div>
         </section>
-
     </main>
-
     <!-- Modal para Historial de Empleado -->
     <div id="modal-history" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
@@ -286,7 +273,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modales de Configuración Genéricos -->
     <div id="modal-config" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
         <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
@@ -300,15 +286,14 @@
             </div>
         </div>
     </div>
-
     <script>
         // =============================================================
         // 🚀 1. CONFIGURACIÓN DE GOOGLE SHEETS 🚀
         // =============================================================
         // PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE APPS SCRIPT (Reemplaza "URL_AQUI"):
-        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyKKRMouyt92SQF8dIarmBo4GvMAITLz4ugWndUEga-0Cxa_v8od6mNN6bizOD__m9k/exec"; 
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyKKRMouyt92SQF8dIarmBo4GvMAITLz4ugWndUEga-0Cxa_v8od6mNN6bizOD__m9k/exec";
+        
         // =============================================================
-
         // Utilidades de Seguridad
         async function hashPassword(password) {
             const encoder = new TextEncoder();
@@ -317,10 +302,8 @@
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
-
         // Generador de IDs únicos
         const generateID = () => 'REQ-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-
         const DB = {
             init: async () => {
                 try {
@@ -330,7 +313,6 @@
                         await DB.fallbackOfflineInit();
                         return;
                     }
-
                     // Descargar todos los datos desde Google Sheets
                     const response = await fetch(GOOGLE_SHEETS_URL);
                     const data = await response.json();
@@ -352,7 +334,6 @@
                     await DB.fallbackOfflineInit();
                 }
             },
-
             // Funciones de caché local (para respuesta instantánea en la interfaz)
             get: (collection) => JSON.parse(localStorage.getItem(collection) || '[]'),
             set: (collection, data) => localStorage.setItem(collection, JSON.stringify(data)),
@@ -363,7 +344,6 @@
                 const data = DB.get(collection);
                 data.push(item);
                 DB.set(collection, data);
-
                 // 2. Enviar a Google Sheets en segundo plano
                 if(GOOGLE_SHEETS_URL !== "URL_AQUI") {
                     fetch(GOOGLE_SHEETS_URL, {
@@ -383,7 +363,6 @@
                     data[idx] = { ...data[idx], ...updates };
                     DB.set(collection, data);
                 }
-
                 // 2. Actualizar Google Sheets en segundo plano
                 if(GOOGLE_SHEETS_URL !== "URL_AQUI") {
                     fetch(GOOGLE_SHEETS_URL, {
@@ -393,7 +372,6 @@
                     }).catch(e => console.error("Error actualizando en Sheets:", e));
                 }
             },
-
             // Métodos de inicialización interna
             fallbackOfflineInit: async () => {
                 if (!localStorage.getItem('sys_initialized')) {
@@ -405,7 +383,6 @@
                     localStorage.setItem('sys_initialized', 'true');
                 }
             },
-
             seedToSheets: async () => {
                 const defaultHash = await hashPassword('admin123');
                 const initialAreas = [
@@ -422,7 +399,6 @@
                 const initialAdmins = [
                     { id: 'admin_root', name: 'Admin Sistema', email: 'admin@admin.com', hash: defaultHash, role: 'principal', active: true, deletable: false, created: new Date().toISOString() }
                 ];
-
                 // Cache Local
                 localStorage.setItem('areas', JSON.stringify(initialAreas));
                 localStorage.setItem('absence_types', JSON.stringify(initialTypes));
@@ -435,7 +411,6 @@
                 initialAdmins.forEach(item => DB.add('admins', item));
             }
         };
-
         // Estado Global de la App
         const State = {
             currentUser: null, // Si no es null, es un admin logueado
@@ -444,7 +419,6 @@
             types: [],
             admins: []
         };
-
         // -------------------------------------------------------------
         // CAPA DE AUTENTICACIÓN
         // -------------------------------------------------------------
@@ -459,7 +433,6 @@
                 const hashedInput = await hashPassword(pass);
                 
                 const user = admins.find(a => a.email.toLowerCase() === email.toLowerCase() && a.active);
-
                 if (user && user.hash === hashedInput) {
                     State.currentUser = { id: user.id, name: user.name, role: user.role, email: user.email };
                     errorEl.classList.add('hidden');
@@ -474,7 +447,6 @@
                 UI.showEmployeeView();
             }
         };
-
         const UI = {
             hideAll: () => {
                 ['view-employee', 'view-admin-login', 'view-admin-dashboard', 'view-admin-config'].forEach(id => {
@@ -509,7 +481,6 @@
                 } else {
                     document.getElementById('sheets-warning').classList.add('hidden');
                 }
-
                 App.renderRequests();
                 App.renderKPIs();
             },
@@ -526,7 +497,6 @@
                     document.getElementById('admin-management-content').classList.add('hidden');
                     document.getElementById('admin-restricted-content').classList.remove('hidden');
                 }
-
                 ConfigMod.loadData();
                 UI.switchConfigTab('areas');
             },
@@ -581,7 +551,6 @@
                 setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 3000);
             }
         };
-
         const ConfigMod = {
             loadData: () => {
                 State.areas = DB.get('areas');
@@ -632,7 +601,6 @@
                     ConfigMod.loadData();
                 }
             },
-
             // --- TIPOS DE AUSENTISMO ---
             renderTypes: () => {
                 const ul = document.getElementById('list-types');
@@ -679,7 +647,6 @@
                     ConfigMod.loadData();
                 }
             },
-
             // --- ADMINISTRADORES ---
             renderAdmins: () => {
                 if(State.currentUser.role !== 'principal') return;
@@ -720,9 +687,9 @@
                     
                     if(name && email && pass.length >= 6) {
                         const hash = await hashPassword(pass);
-                        DB.add('admins', { 
-                            id: generateID(), name, email, hash, role, active: true, deletable: true, created: new Date().toISOString() 
-                        });
+                        DB.add('admins', {
+                             id: generateID(), name, email, hash, role, active: true, deletable: true, created: new Date().toISOString()
+                         });
                         UI.closeModals();
                         ConfigMod.loadData();
                         UI.showNotification("Administrador creado de forma segura");
@@ -738,7 +705,6 @@
                 }
             }
         };
-
         const App = {
             loadEmployeeFormData: () => {
                 // Cargar listas activas desde Configuración
@@ -746,12 +712,12 @@
                 const types = DB.get('absence_types').filter(t => t.active);
                 
                 const areaSelect = document.getElementById('emp-area');
-                areaSelect.innerHTML = '<option value="">Seleccione un área...</option>' + 
-                    areas.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+                areaSelect.innerHTML = '<option value="">Seleccione un área...</option>' +
+                     areas.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
                 
                 const typeSelect = document.getElementById('emp-type');
-                typeSelect.innerHTML = '<option value="">Seleccione el tipo...</option>' + 
-                    types.map(t => `<option value="${t.name}" data-support="${t.requireSupport}">${t.name}</option>`).join('');
+                typeSelect.innerHTML = '<option value="">Seleccione el tipo...</option>' +
+                     types.map(t => `<option value="${t.name}" data-support="${t.requireSupport}">${t.name}</option>`).join('');
             },
             
             submitRequest: (e) => {
@@ -773,7 +739,6 @@
                         durationStr = `${hours}h ${mins}m`;
                     }
                 }
-
                 const requestData = {
                     id: generateID(),
                     timestamp: new Date().toISOString(),
@@ -793,20 +758,17 @@
                     actionBy: null,
                     actionDate: null
                 };
-
                 DB.add('leave_requests', requestData);
                 
                 UI.showNotification("¡Solicitud enviada con éxito!");
                 document.getElementById('form-employee').reset();
                 UI.handleTypeChange();
             },
-
             loadAdminData: () => {
                 State.requests = DB.get('leave_requests');
                 App.renderRequests();
                 App.renderKPIs();
             },
-
             renderRequests: () => {
                 State.requests = DB.get('leave_requests'); // Refrescar siempre
                 const tbody = document.getElementById('requests-table-body');
@@ -817,11 +779,10 @@
                 
                 // Ordenar más recientes primero
                 filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-
                 tbody.innerHTML = filtered.map(req => {
                     let statusColor = req.status === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                                      req.status === 'Aprobada' ? 'bg-green-100 text-green-800' : 
-                                      'bg-red-100 text-red-800';
+                                      req.status === 'Aprobada' ? 'bg-green-100 text-green-800' :
+                                       'bg-red-100 text-red-800';
                     return `
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -856,7 +817,6 @@
                     tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No hay solicitudes para mostrar.</td></tr>`;
                 }
             },
-
             changeStatus: (id, newStatus) => {
                 DB.update('leave_requests', id, {
                     status: newStatus,
@@ -866,7 +826,6 @@
                 App.renderRequests();
                 App.renderKPIs();
             },
-
             renderKPIs: () => {
                 const reqs = DB.get('leave_requests');
                 const kpiContainer = document.getElementById('kpi-container');
@@ -876,7 +835,6 @@
                 
                 const currentMonth = new Date().getMonth();
                 const delMes = reqs.filter(r => new Date(r.timestamp).getMonth() === currentMonth).length;
-
                 kpiContainer.innerHTML = `
                     <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
                         <div class="text-gray-500 text-sm font-medium">Total Solicitudes</div>
@@ -896,10 +854,11 @@
                     </div>
                 `;
             },
-
             searchEmployeeHistory: () => {
                 const doc = document.getElementById('search-doc').value;
                 const allReqs = DB.get('leave_requests');
+                
+                // --- CORRECCIÓN EXACTA APLICADA AQUÍ ---
                 const history = allReqs.filter(r => String(r.document).trim() === String(doc).trim()).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
                 
                 const ul = document.getElementById('history-list');
@@ -912,7 +871,7 @@
                     empty.classList.add('hidden');
                     ul.innerHTML = history.map(req => {
                         let statusColor = req.status === 'Pendiente' ? 'text-yellow-600' :
-                                      req.status === 'Aprobada' ? 'text-green-600' : 'text-red-600';
+                                          req.status === 'Aprobada' ? 'text-green-600' : 'text-red-600';
                         return `
                             <li class="py-3 flex justify-between items-center">
                                 <div>
@@ -925,7 +884,6 @@
                     }).join('');
                 }
             },
-
             exportToCSV: () => {
                 const data = DB.get('leave_requests');
                 if(data.length === 0) return UI.showNotification("No hay datos para exportar");
@@ -965,12 +923,10 @@
                 a.click();
             }
         };
-
         window.onload = async () => {
             await DB.init();
             UI.showEmployeeView(); // Vista por defecto
         };
-
     </script>
 </body>
 </html>
